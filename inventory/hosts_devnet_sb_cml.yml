@@ -1,0 +1,42 @@
+---
+
+internet-rtr01:
+    hostname: 10.10.20.181
+    platform: ios
+    site: devnet_sandbox
+    groups:
+        - devnet-cml-lab
+
+edge-sw01:
+    hostname: 10.10.20.172
+    platform: ios
+    site: devnet_sandbox
+    groups:
+        - devnet-cml-lab
+
+dist-rtr01:
+    hostname: 10.10.20.175
+    platform: ios
+    groups:
+        - devnet-cml-lab
+
+dist-rtr02:
+    hostname: 10.10.20.176
+    platform: ios
+    groups:
+        - devnet-cml-lab
+
+dist-sw01:
+    hostname: 10.10.20.177
+    platform: nxos_ssh
+    transport: ssh
+    groups:
+        - devnet-cml-lab
+
+dist-sw02:
+    hostname: 10.10.20.178
+    platform: nxos_ssh
+    transport: ssh
+    groups:
+        - devnet-cml-lab
+

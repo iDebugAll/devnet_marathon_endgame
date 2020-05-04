@@ -1,0 +1,12 @@
+---
+defaults:
+    contact: idebugall@gmail.com
+
+devnet-cml-lab:
+    username: cisco
+    password: cisco
+    connection_options:
+        napalm:
+            extras:
+                optional_args:
+                    secret: cisco
