@@ -18,7 +18,12 @@
                     nodeConfig: {
                         // label display name from of node's model, could change to 'model.id' to show id
                         label: 'model.name',
-                        iconType:'model.icon'
+                        iconType:'model.icon',
+                        color: function(model) {
+                            if (model._data.is_new === 'yes') {
+                                return '#148D09'
+                            }
+                        },
                     },
                     // node set config
                     nodeSetConfig: {
@@ -30,7 +35,20 @@
                         // multiple link type is curve, could change to 'parallel' to use parallel link
                         linkType: 'curve',
                         sourcelabel: 'model.srcIfName',
-                        targetlabel: 'model.tgtIfName'
+                        targetlabel: 'model.tgtIfName',
+                        style: function(model) {
+                            if (model._data.is_dead === 'yes') {
+                                return { 'stroke-dasharray': '5' }
+                            }
+                        },
+                        color: function(model) {
+                            if (model._data.is_dead === 'yes') {
+                                return '#E40039'
+                            }
+                            if (model._data.is_new === 'yes') {
+                                return '#148D09'
+                            }
+                        },
                     },
                     // show node's icon, could change to false to show dot
                     showIcon: true,
