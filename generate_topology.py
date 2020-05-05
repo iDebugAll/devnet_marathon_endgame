@@ -420,6 +420,7 @@ def good_luck_have_fun():
     print(f'Для просмотра топологии откройте файл main.html')
     if CACHED_TOPOLOGY:
         DIFF_DATA = get_topology_diff(CACHED_TOPOLOGY, TOPOLOGY_DICT)
+        print_diff(DIFF_DATA)
         write_topology_file(DIFF_DATA[2], dst='diff_topology.js')
         print(f'Для просмотра топологии с визуализацией изменений откройте файл diff_page.html')
 
