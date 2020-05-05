@@ -77,6 +77,7 @@ def get_icon_type(device_cap_name):
 
 
 def get_host_data(task):
+    """Nornir Task для сбора данных с целевых устройств."""
     task.run(
         task=napalm_get,
         getters=['facts', 'lldp_neighbors_detail']
@@ -84,6 +85,11 @@ def get_host_data(task):
 
 
 def normalize_result(nornir_job_result):
+    """
+    Парсер для результата работы get_host_data.
+    Возвращает словари с данными LLDP и FACTS с разбиением 
+    по устройствам с ключами в виде хостнеймов.
+    """
     global_lldp_data = {}
     global_facts = {}
     for device, output in nornir_job_result.items():
@@ -100,6 +106,12 @@ def normalize_result(nornir_job_result):
 
 
 def extract_lldp_details(lldp_data_dict):
+    """
+    Парсер данных из словаря LLDP-данных.
+    Возвращает сет из всех обнаруженных в топологии хостов,
+    словарь обнаруженных LLDP capabilities с ключами в виде
+    хостнеймов и список уникальных связностей между хостами.
+    """
     discovered_hosts = set()
     lldp_capabilities_dict = {}
     global_interconnections = []
@@ -136,6 +148,13 @@ def extract_lldp_details(lldp_data_dict):
 
 
 def generate_topology_json(*args):
+    """
+    Генератор JSON-объекта топологии.
+    На вход принимает сет из всех обнаруженных в топологии хостов,
+    словарь обнаруженных LLDP capabilities с ключами в виде
+    хостнеймов, список уникальных связностей между хостами и словарь
+    с дополнительными данными об устройствах с ключами в виде хостнеймов.
+    """
     discovered_hosts, interconnections, lldp_capabilities_dict, facts = args
     host_id = 0
     host_id_map = {}
@@ -197,6 +216,12 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
 
 
 def get_topology_diff(cached, current):
+    """
+    Функция поиска изменений в топологии.
+    На вход принимает два словаря с кэшированной и текущей
+    топологиями. На выходе возвращает список словарей с изменениями
+    по хостам и линкам.
+    """
     cached_links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in cached['links']]
     cached_nodes = [(x['name'],) for x in cached['nodes']]
     links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in current['links']]
@@ -221,6 +246,10 @@ def get_topology_diff(cached, current):
 
 
 def print_diff(diff):
+    """
+    Функция для форматированного вывода
+    результата get_topology_diff в консоль.
+    """
     diff_nodes, diff_links = diff
     if not (diff_nodes['added'] or diff_nodes['deleted'] or diff_links['added'] or diff_links['deleted']):
         print('Изменений в топологии не обнаружено.')
@@ -258,6 +287,7 @@ def print_diff(diff):
 
 
 def good_luck_have_fun():
+    """Функция, реализующая итоговую логику."""
     get_host_data_result = nr.run(get_host_data)
     GLOBAL_LLDP_DATA, GLOBAL_FACTS = normalize_result(get_host_data_result)
     TOPOLOGY_DETAILS = extract_lldp_details(GLOBAL_LLDP_DATA)
