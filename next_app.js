@@ -138,7 +138,7 @@
         currentLayout = 'horizontal';
         var layout = topo.getLayout('hierarchicalLayout');
         layout.direction('horizontal');
-        layout.sortOrder(['outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.sortOrder(['undefined', 'outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
         layout.levelBy(function(node, model) {
             return model.get('role');
         });
@@ -152,7 +152,7 @@
         currentLayout = 'vertical';
         var layout = topo.getLayout('hierarchicalLayout');
         layout.direction('vertical');
-        layout.sortOrder(['outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.sortOrder(['undefined', 'outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
         layout.levelBy(function(node, model) {
           return model.get('role');
         });
