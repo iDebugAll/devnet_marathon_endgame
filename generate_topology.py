@@ -289,8 +289,8 @@ def get_topology_diff(cached, current):
     diff_merged_topology = {'nodes': [], 'links': []}
     # Линки парсятся из объектов топологии в формат:
     # (исходник, (хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
-    cached_links = [(x, (x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in cached['links']]
-    links = [(x, (x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in current['links']]
+    cached_links = [(x, ((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName']))) for x in cached['links']]
+    links = [(x, ((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName']))) for x in current['links']]
     # Хосты парсятся из объектов топологии в формат:
     # (исходные данные, (хостнейм,))
     # В кортеж при дальнейшей разработке могут добавляться дополнительные параметры для сравнения.
@@ -298,9 +298,11 @@ def get_topology_diff(cached, current):
     nodes = [(x, (x['name'],)) for x in current['nodes']]
     # Выполняется поиск добавленных и удаленных хостнеймов в топологии.
     node_id = 0
+    host_id_map = {}
     for raw_data, node in nodes:
         if node in [x[1] for x in cached_nodes]:
             raw_data['id'] = node_id
+            host_id_map[raw_data['name']] = node_id
             raw_data['is_new'] = False
             raw_data['is_dead'] = False
             diff_merged_topology['nodes'].append(raw_data)
@@ -308,15 +310,17 @@ def get_topology_diff(cached, current):
             continue
         diff_nodes['added'].append(node)
         raw_data['id'] = node_id
+        host_id_map[raw_data['name']] = node_id
         raw_data['is_new'] = True
         raw_data['is_dead'] = False
-        diff_merged_topology['nodes']
+        diff_merged_topology['nodes'].append(raw_data)
         node_id += 1
     for raw_data, cached_node in cached_nodes:
         if cached_node in [x[1] for x in nodes]:
             continue
         diff_nodes['deleted'].append(cached_node)
         raw_data['id'] = node_id
+        host_id_map[raw_data['name']] = node_id
         raw_data['is_new'] = False
         raw_data['is_dead'] = True
         raw_data['icon'] = 'dead_node'
@@ -328,12 +332,37 @@ def get_topology_diff(cached, current):
     # При проверке учитывается формат хранения и
     # выполняется проверка на перестановки источника и назначения:
     # ((h1, Gi1), (h2, Gi2)) и ((h2, Gi2), (h1, Gi1)) - одно и тоже.
-    for src, dst in links:
-        if not (src, dst) in cached_links and not (dst, src) in cached_links:
+    link_id = 0
+    for raw_data, link in links:
+        src, dst = link
+        if not (src, dst) in [x[1] for x in cached_links] and not (dst, src) in [x[1] for x in cached_links]:
             diff_links['added'].append((src, dst))
-    for src, dst in cached_links:
-        if not (src, dst) in links and not (dst, src) in links:
+            raw_data['id'] = link_id
+            link_id += 1
+            raw_data['source'] = host_id_map[src[0]]
+            raw_data['target'] = host_id_map[dst[0]]
+            raw_data['is_new'] = True
+            raw_data['is_dead'] = False
+            diff_merged_topology['links'].append(raw_data)
+            continue
+        raw_data['id'] = link_id
+        link_id += 1
+        raw_data['source'] = host_id_map[src[0]]
+        raw_data['target'] = host_id_map[dst[0]]
+        raw_data['is_new'] = False
+        raw_data['is_dead'] = False
+        diff_merged_topology['links'].append(raw_data)
+    for raw_data, link in cached_links:
+        src, dst = link
+        if not (src, dst) in [x[1] for x in links] and not (dst, src) in [x[1] for x in links]:
             diff_links['deleted'].append((src, dst))
+            raw_data['id'] = link_id
+            link_id += 1
+            raw_data['source'] = host_id_map[src[0]]
+            raw_data['target'] = host_id_map[dst[0]]
+            raw_data['is_new'] = False
+            raw_data['is_dead'] = True
+            diff_merged_topology['links'].append(raw_data)
     return diff_nodes, diff_links, diff_merged_topology
 
 
