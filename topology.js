@@ -171,7 +171,7 @@ var topologyData = {
             "serial_number": "9LGWPM8GTV6"
         },
         {
-            "icon": "unknown",
+            "icon": "switch",
             "id": 7,
             "model": "IOSv",
             "name": "edge-sw01.devnet.lab",
