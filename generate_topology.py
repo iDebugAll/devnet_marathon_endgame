@@ -175,9 +175,14 @@ def extract_lldp_details(lldp_data_dict):
                 if not neighbor['remote_system_name']:
                     continue
                 discovered_hosts.add(neighbor['remote_system_name'])
-                lldp_capabilities_dict[neighbor['remote_system_name']] = (
-                    neighbor['remote_system_enable_capab'][0]
-                )
+                if neighbor['remote_system_enable_capab']:
+                    # В случае наличия нескольких enable capabilities
+                    # в расчет берется первая по списку
+                    lldp_capabilities_dict[neighbor['remote_system_name']] = (
+                        neighbor['remote_system_enable_capab'][0]
+                    )
+                else:
+                    lldp_capabilities_dict[neighbor['remote_system_name']] = ''
                 # Связи между хостами первоначально сохраняются в формате:
                 # ((хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
                 # и добавляются в общий список.
