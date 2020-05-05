@@ -104,7 +104,11 @@ def normalize_result(nornir_job_result):
         # за идентификатор принимается FQDN устройства, как и в LLDP TLV.
         device_fqdn = output[1].result['facts']['fqdn']
         if not device_fqdn:
-            # Если FQDN не задан,используется имя host-объекта в инвентори.
+            # Если FQDN не задан, используется хостнейм.
+            device_fqdn = output[1].result['facts']['hostname']
+        if not device_fqdn:
+            # Если и хостнейм не задан,
+            # используется имя host-объекта в инвентори.
             device_fqdn = device
         global_facts[device_fqdn] = output[1].result['facts']
         global_lldp_data[device_fqdn] = output[1].result['lldp_neighbors_detail']
