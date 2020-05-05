@@ -94,11 +94,17 @@ def normalize_result(nornir_job_result):
     global_facts = {}
     for device, output in nornir_job_result.items():
         if output[0].failed:
+            # Если таск для специфического хоста завершился ошибкой,
+            # в результат для него записываются пустые списки.
+            # Ключом будет являться имя его host-объекта в инвентори.
             global_lldp_data[device] = []
             global_facts[device] = []
             continue
+        # Для различения устройств в топологии при ее анализе
+        # за идентификатор принимается FQDN устройства, как и в LLDP TLV.
         device_fqdn = output[1].result['facts']['fqdn']
         if not device_fqdn:
+            # Если FQDN не задан,используется имя host-объекта в инвентори.
             device_fqdn = device
         global_facts[device_fqdn] = output[1].result['facts']
         global_lldp_data[device_fqdn] = output[1].result['lldp_neighbors_detail']
