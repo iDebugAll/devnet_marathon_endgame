@@ -2,59 +2,60 @@
     /**
      * define NeXt based application
      */
+    // initialize a topology
+    var topo = new nx.graphic.Topology({
+        // set the topology view's with and height
+        width: 1200,
+        height: 800,
+        dataProcessor: 'force',
+        identityKey: 'id',
+        // node config
+        nodeConfig: {
+            // label display name from of node's model, could change to 'model.id' to show id
+            label: 'model.name',
+            iconType:'model.icon',
+            color: function(model) {
+                if (model._data.is_new === 'yes') {
+                    return '#148D09'
+                }
+            },
+        },
+        // node set config
+        nodeSetConfig: {
+            label: 'model.name',
+            iconType: 'model.iconType'
+        },
+        // link config
+        linkConfig: {
+            // multiple link type is curve, could change to 'parallel' to use parallel link
+            linkType: 'curve',
+            sourcelabel: 'model.srcIfName',
+            targetlabel: 'model.tgtIfName',
+            style: function(model) {
+                if (model._data.is_dead === 'yes') {
+                    return { 'stroke-dasharray': '5' }
+                }
+            },
+            color: function(model) {
+                if (model._data.is_dead === 'yes') {
+                    return '#E40039'
+                }
+                if (model._data.is_new === 'yes') {
+                    return '#148D09'
+                }
+            },
+        },
+        // show node's icon, could change to false to show dot
+        showIcon: true,
+        linkInstanceClass: 'MyExtendLink' 
+    });
+
+    topo.registerIcon("dead_node", "img/dead_node.png", 49, 49);
+
     var Shell = nx.define(nx.ui.Application, {
         methods: {
             start: function () {
                 //your application main entry
-
-                // initialize a topology
-                var topo = new nx.graphic.Topology({
-                    // set the topology view's with and height
-                    width: 1200,
-                    height: 800,
-                    dataProcessor: 'force',
-                    identityKey: 'id',
-                    // node config
-                    nodeConfig: {
-                        // label display name from of node's model, could change to 'model.id' to show id
-                        label: 'model.name',
-                        iconType:'model.icon',
-                        color: function(model) {
-                            if (model._data.is_new === 'yes') {
-                                return '#148D09'
-                            }
-                        },
-                    },
-                    // node set config
-                    nodeSetConfig: {
-                        label: 'model.name',
-                        iconType: 'model.iconType'
-                    },
-                    // link config
-                    linkConfig: {
-                        // multiple link type is curve, could change to 'parallel' to use parallel link
-                        linkType: 'curve',
-                        sourcelabel: 'model.srcIfName',
-                        targetlabel: 'model.tgtIfName',
-                        style: function(model) {
-                            if (model._data.is_dead === 'yes') {
-                                return { 'stroke-dasharray': '5' }
-                            }
-                        },
-                        color: function(model) {
-                            if (model._data.is_dead === 'yes') {
-                                return '#E40039'
-                            }
-                            if (model._data.is_new === 'yes') {
-                                return '#148D09'
-                            }
-                        },
-                    },
-                    // show node's icon, could change to false to show dot
-                    showIcon: true,
-                    linkInstanceClass: 'MyExtendLink' 
-                });
-                topo.registerIcon("dead_node", "img/dead_node.png", 49, 49);
                 //set data to topology
                 topo.data(topologyData);
                 //attach topology to document
@@ -127,6 +128,36 @@
             }
         }
     });
+
+    var currentLayout = 'auto'
+
+    horizontal = function() {
+        if (currentLayout === 'horizontal') {
+            return;
+        };
+        currentLayout = 'horizontal';
+        var layout = topo.getLayout('hierarchicalLayout');
+        layout.direction('horizontal');
+        layout.sortOrder(['outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.levelBy(function(node, model) {
+            return model.get('role');
+        });
+        topo.activateLayout('hierarchicalLayout');
+    };
+
+    vertical = function() {
+        if (currentLayout === 'vertical') {
+            return;
+        };
+        currentLayout = 'vertical';
+        var layout = topo.getLayout('hierarchicalLayout');
+        layout.direction('vertical');
+        layout.sortOrder(['outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.levelBy(function(node, model) {
+          return model.get('role');
+        });
+        topo.activateLayout('hierarchicalLayout');
+    };
 
     // create application instance
     var shell = new Shell();
