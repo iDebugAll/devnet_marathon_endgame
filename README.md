@@ -119,6 +119,7 @@ vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 От edge-sw01.devnet.lab(Gi0/3) к core-rtr02.devnet.lab(Gi0/0/0/1)
 
 Для просмотра топологии с визуализацией изменений откройте файл diff_page.html
+Либо откройте файл main.html и нажмите кнопку 'Показать визуализацию изменений
 ```
 
 И отображение файла diff.html:
