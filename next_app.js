@@ -36,7 +36,7 @@
                     showIcon: true,
                     linkInstanceClass: 'MyExtendLink' 
                 });
-
+                topo.registerIcon("dead_node", "img/dead_node.png", 49, 49);
                 //set data to topology
                 topo.data(topologyData);
                 //attach topology to document
