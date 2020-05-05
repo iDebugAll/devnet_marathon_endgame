@@ -303,16 +303,16 @@ def get_topology_diff(cached, current):
         if node in [x[1] for x in cached_nodes]:
             raw_data['id'] = node_id
             host_id_map[raw_data['name']] = node_id
-            raw_data['is_new'] = False
-            raw_data['is_dead'] = False
+            raw_data['is_new'] = 'no'
+            raw_data['is_dead'] = 'no'
             diff_merged_topology['nodes'].append(raw_data)
             node_id += 1
             continue
         diff_nodes['added'].append(node)
         raw_data['id'] = node_id
         host_id_map[raw_data['name']] = node_id
-        raw_data['is_new'] = True
-        raw_data['is_dead'] = False
+        raw_data['is_new'] = 'yes'
+        raw_data['is_dead'] = 'no'
         diff_merged_topology['nodes'].append(raw_data)
         node_id += 1
     for raw_data, cached_node in cached_nodes:
@@ -321,8 +321,8 @@ def get_topology_diff(cached, current):
         diff_nodes['deleted'].append(cached_node)
         raw_data['id'] = node_id
         host_id_map[raw_data['name']] = node_id
-        raw_data['is_new'] = False
-        raw_data['is_dead'] = True
+        raw_data['is_new'] = 'no'
+        raw_data['is_dead'] = 'yes'
         raw_data['icon'] = 'dead_node'
         diff_merged_topology['nodes'].append(raw_data)
         node_id += 1
@@ -341,16 +341,16 @@ def get_topology_diff(cached, current):
             link_id += 1
             raw_data['source'] = host_id_map[src[0]]
             raw_data['target'] = host_id_map[dst[0]]
-            raw_data['is_new'] = True
-            raw_data['is_dead'] = False
+            raw_data['is_new'] = 'yes'
+            raw_data['is_dead'] = 'no'
             diff_merged_topology['links'].append(raw_data)
             continue
         raw_data['id'] = link_id
         link_id += 1
         raw_data['source'] = host_id_map[src[0]]
         raw_data['target'] = host_id_map[dst[0]]
-        raw_data['is_new'] = False
-        raw_data['is_dead'] = False
+        raw_data['is_new'] = 'no'
+        raw_data['is_dead'] = 'no'
         diff_merged_topology['links'].append(raw_data)
     for raw_data, link in cached_links:
         src, dst = link
@@ -360,8 +360,8 @@ def get_topology_diff(cached, current):
             link_id += 1
             raw_data['source'] = host_id_map[src[0]]
             raw_data['target'] = host_id_map[dst[0]]
-            raw_data['is_new'] = False
-            raw_data['is_dead'] = True
+            raw_data['is_new'] = 'no'
+            raw_data['is_dead'] = 'yes'
             diff_merged_topology['links'].append(raw_data)
     return diff_nodes, diff_links, diff_merged_topology
 
@@ -417,9 +417,10 @@ def good_luck_have_fun():
     CACHED_TOPOLOGY = read_cached_topology()
     write_topology_file(TOPOLOGY_DICT)
     write_topology_cache(TOPOLOGY_DICT)
-    if CACHED_TOPOLOGY:
-        print_diff(get_topology_diff(CACHED_TOPOLOGY, TOPOLOGY_DICT))
     print(f'Для просмотра топологии откройте файл main.html')
+    if CACHED_TOPOLOGY:
+        DIFF_DATA = get_topology_diff(CACHED_TOPOLOGY, TOPOLOGY_DICT)
+        write_topology_file(DIFF_DATA[2], dst='diff_topology.js')
 
 
 if __name__ == '__main__':
