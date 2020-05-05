@@ -81,6 +81,8 @@ vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 От dist-rtr02.devnet.lab(Gi5) к dist-sw02.devnet.lab(Eth1/4)
 От dist-sw01.devnet.lab(Eth1/1) к dist-sw02.devnet.lab(Eth1/1)
 От dist-sw01.devnet.lab(Eth1/2) к dist-sw02.devnet.lab(Eth1/2)
+
+Для просмотра топологии откройте файл main.html
 ```
 
 
