@@ -237,7 +237,12 @@ def get_topology_diff(cached, current):
     топологиями. На выходе возвращает список словарей с изменениями
     по хостам и линкам.
     """
+    # Линки парсятся из объектов топологии в формат:
+    # ((хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
     cached_links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in cached['links']]
+    # Хосты парсятся из объектов топологии в формат:
+    # (хостнейм,)
+    # В кортеж при дальнейшей разработке могут добавляться дополнительные параметры для сравнения.
     cached_nodes = [(x['name'],) for x in cached['nodes']]
     links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in current['links']]
     nodes = [(x['name'],)for x in current['nodes']]
