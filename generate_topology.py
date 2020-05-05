@@ -284,26 +284,44 @@ def get_topology_diff(cached, current):
     топологиями. На выходе возвращает список словарей с изменениями
     по хостам и линкам.
     """
-    # Линки парсятся из объектов топологии в формат:
-    # ((хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
-    cached_links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in cached['links']]
-    # Хосты парсятся из объектов топологии в формат:
-    # (хостнейм,)
-    # В кортеж при дальнейшей разработке могут добавляться дополнительные параметры для сравнения.
-    cached_nodes = [(x['name'],) for x in cached['nodes']]
-    links = [((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in current['links']]
-    nodes = [(x['name'],)for x in current['nodes']]
     diff_nodes = {'added': [], 'deleted': []}
     diff_links = {'added': [], 'deleted': []}
+    diff_merged_topology = {'nodes': [], 'links': []}
+    # Линки парсятся из объектов топологии в формат:
+    # (исходник, (хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
+    cached_links = [(x, (x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in cached['links']]
+    links = [(x, (x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName'])) for x in current['links']]
+    # Хосты парсятся из объектов топологии в формат:
+    # (исходные данные, (хостнейм,))
+    # В кортеж при дальнейшей разработке могут добавляться дополнительные параметры для сравнения.
+    cached_nodes = [(x, (x['name'],)) for x in cached['nodes']]
+    nodes = [(x, (x['name'],)) for x in current['nodes']]
     # Выполняется поиск добавленных и удаленных хостнеймов в топологии.
-    for node in nodes:
-        if node in cached_nodes:
+    node_id = 0
+    for raw_data, node in nodes:
+        if node in [x[1] for x in cached_nodes]:
+            raw_data['id'] = node_id
+            raw_data['is_new'] = False
+            raw_data['is_dead'] = False
+            diff_merged_topology['nodes'].append(raw_data)
+            node_id += 1
             continue
         diff_nodes['added'].append(node)
-    for cached_node in cached_nodes:
-        if cached_node in nodes:
+        raw_data['id'] = node_id
+        raw_data['is_new'] = True
+        raw_data['is_dead'] = False
+        diff_merged_topology['nodes']
+        node_id += 1
+    for raw_data, cached_node in cached_nodes:
+        if cached_node in [x[1] for x in nodes]:
             continue
         diff_nodes['deleted'].append(cached_node)
+        raw_data['id'] = node_id
+        raw_data['is_new'] = False
+        raw_data['is_dead'] = True
+        raw_data['icon'] = 'dead_node'
+        diff_merged_topology['nodes'].append(raw_data)
+        node_id += 1
     # Выполняется поиск новых и удаленных связей между устройствами.
     # Смена интерфейса между парой устройств рассматривается
     # как добавление одной связи и добавление другой.
@@ -316,15 +334,15 @@ def get_topology_diff(cached, current):
     for src, dst in cached_links:
         if not (src, dst) in links and not (dst, src) in links:
             diff_links['deleted'].append((src, dst))
-    return diff_nodes, diff_links
+    return diff_nodes, diff_links, diff_merged_topology
 
 
-def print_diff(diff):
+def print_diff(diff_result):
     """
     Функция для форматированного вывода
     результата get_topology_diff в консоль.
     """
-    diff_nodes, diff_links = diff
+    diff_nodes, diff_links, *ignore = diff_result
     if not (diff_nodes['added'] or diff_nodes['deleted'] or diff_links['added'] or diff_links['deleted']):
         print('Изменений в топологии не обнаружено.')
         return
