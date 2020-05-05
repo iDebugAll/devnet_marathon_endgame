@@ -139,11 +139,16 @@ def extract_lldp_details(lldp_data_dict):
                 lldp_capabilities_dict[neighbor['remote_system_name']] = (
                     neighbor['remote_system_enable_capab'][0]
                 )
+                # Связи между хостами первоначально сохраняются в формате:
+                # ((хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
+                # и добавляются в общий список.
                 local_end = (host, interface)
                 remote_end = (
                     neighbor['remote_system_name'],
                     if_fullname(neighbor['remote_port'])
                 )
+                # При добавлении проверяется, не является ли линк перестановкой
+                # источника и назначения или дублем.
                 link_is_already_there = (
                     (local_end, remote_end) in global_interconnections
                     or (remote_end, local_end) in global_interconnections
