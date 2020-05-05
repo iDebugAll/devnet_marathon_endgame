@@ -248,6 +248,7 @@ def get_topology_diff(cached, current):
     nodes = [(x['name'],)for x in current['nodes']]
     diff_nodes = {'added': [], 'deleted': []}
     diff_links = {'added': [], 'deleted': []}
+    # Выполняется поиск добавленных и удаленных хостнеймов в топологии.
     for node in nodes:
         if node in cached_nodes:
             continue
@@ -256,6 +257,12 @@ def get_topology_diff(cached, current):
         if cached_node in nodes:
             continue
         diff_nodes['deleted'].append(cached_node)
+    # Выполняется поиск новых и удаленных связей между устройствами.
+    # Смена интерфейса между парой устройств рассматривается
+    # как добавление одной связи и добавление другой.
+    # При проверке учитывается формат хранения и
+    # выполняется проверка на перестановки источника и назначения:
+    # ((h1, Gi1), (h2, Gi2)) и ((h2, Gi2), (h1, Gi1)) - одно и тоже.
     for src, dst in links:
         if not (src, dst) in cached_links and not (dst, src) in cached_links:
             diff_links['added'].append((src, dst))
