@@ -424,6 +424,9 @@ def good_luck_have_fun():
         write_topology_file(DIFF_DATA[2], dst='diff_topology.js')
         print('Для просмотра топологии с визуализацией изменений откройте файл diff_page.html')
         print("Либо откройте файл main.html и нажмите кнопку 'Показать визуализацию изменений'")
+    else:
+        # если кэша топологии нет, файл будет содержать текущую топологию
+        write_topology_file(TOPOLOGY_DICT, dst='diff_topology.js')
 
 
 if __name__ == '__main__':
