@@ -126,7 +126,7 @@ def get_host_data(task):
 def normalize_result(nornir_job_result):
     """
     Парсер для результата работы get_host_data.
-    Возвращает словари с данными LLDP и FACTS с разбиением 
+    Возвращает словари с данными LLDP и FACTS с разбиением
     по устройствам с ключами в виде хостнеймов.
     """
     global_lldp_data = {}
