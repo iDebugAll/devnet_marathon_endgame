@@ -41,12 +41,34 @@ TOPOLOGY_FILE_HEAD = "\n\nvar topologyData = "
 
 nr = InitNornir(config_file=NORNIR_CONFIG_FILE)
 
-icon_type_map = {
+icon_capability_map = {
     'router': 'router',
     'switch': 'switch',
     'bridge': 'switch',
     'station': 'host'
 }
+
+
+icon_model_map = {
+    'CSR1000V': 'router',
+    'Nexus': 'switch',
+    'IOSXRv': 'router',
+    'IOSv': 'switch',
+    '2901': 'router',
+    '2911': 'router',
+    '2921': 'router',
+    '2951': 'router',
+    '4321': 'router',
+    '4331': 'router',
+    '4351': 'router',
+    '4421': 'router',
+    '4431': 'router',
+    '4451': 'router',
+    '2960': 'switch',
+    '3750': 'switch',
+    '3850': 'switch',
+}
+
 
 interface_full_name_map = {
     'Eth': 'Ethernet',
@@ -72,8 +94,25 @@ def if_shortname(ifname):
     return ifname
 
 
-def get_icon_type(device_cap_name):
-    return icon_type_map.get(device_cap_name, 'unknown')
+def get_icon_type(device_cap_name, device_model=''):
+    """
+    Функция для определения типа пиктограммы устройства.
+    Приоритет имеет маппинг LLDP capabilities.
+    Если по ним определить тип пиктограммы не удалось,
+    делается проверка по модели устройства.
+    При отсутствии результата возвращается тип по умолчанию 'unknown'.
+    """
+    if device_cap_name:
+        icon_type = icon_capability_map.get(device_cap_name)
+        if icon_type:
+            return icon_type
+    if device_model:
+        # Проверяется вхождение подстроки из ключей icon_model_map
+        # В строке модели устройства до первого совпадения
+        for model_shortname, icon_type in icon_model_map.items():
+            if model_shortname in device_model:
+                return icon_type
+    return 'unknown'
 
 
 def get_host_data(task):
@@ -186,7 +225,10 @@ def generate_topology_json(*args):
             'name': host,
             'model': device_model,
             'serial_number': device_serial,
-            'icon': get_icon_type(lldp_capabilities_dict.get(host, ''))
+            'icon': get_icon_type(
+                lldp_capabilities_dict.get(host, ''),
+                device_model
+            )
         })
         host_id += 1
     link_id = 0
