@@ -13,6 +13,7 @@
 $ mkdir ~/devnet_marathon_endgame
 $ cd ~/devnet_marathon_endgame
 $ git clone https://github.com/iDebugAll/devnet_marathon_endgame.git
+$ cd devnet_marathon_endgame
 $ pip3 install -i requirements.txt
 ```
 Отредактируйте конфигурационные файлы Nornir для доступа на целевую сетевую инфраструктуру.
