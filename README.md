@@ -83,25 +83,46 @@ $ python3.7 generate_topology.py
 При каждом запуске скрипта generate_topology.py выполняется анализ изменений топологии.
 Полученные с устройств детали топологии записываются, помимо прочего, в файл cached_topology.json
 Данный файл считывается при старте и сравнивается с текущим полученным от устройств состоянием.
-В результате данные о добавленных и удаленных в топологии устройствах и линках выводится в консоль:
+В результате данные о добавленных и удаленных в топологии устройствах и линках выводится в консоль, а в файл diff_topology.js записывается объединенная версия двух топологий с расширенными атрибутами для визуализации изменений. Файл с визуализированными изменениями топологии можно посмотреть, открыв файл diff_page.html.
+
+Вывод из консоли:
 
 ```
 $ python3.7 generate_topology.py 
+Для просмотра топологии откройте файл main.html
+
 Обнаружены изменения в топологии:
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Новые сетевые устройства:
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+Имя устройства: dist-rtr01.devnet.lab
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Удаленные сетевые устройства:
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+Имя устройства: edge-sw01.devnet.lab
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Новые соединения между устройствами:
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+От dist-rtr01.devnet.lab(Gi3) к core-rtr02.devnet.lab(Gi0/0/0/2)
 От dist-rtr01.devnet.lab(Gi4) к dist-sw01.devnet.lab(Eth1/3)
 От dist-rtr01.devnet.lab(Gi6) к dist-rtr02.devnet.lab(Gi6)
 От dist-rtr01.devnet.lab(Gi5) к dist-sw02.devnet.lab(Eth1/3)
-От dist-rtr02.devnet.lab(Gi4) к dist-sw01.devnet.lab(Eth1/4)
-От dist-rtr02.devnet.lab(Gi5) к dist-sw02.devnet.lab(Eth1/4)
-От dist-sw01.devnet.lab(Eth1/1) к dist-sw02.devnet.lab(Eth1/1)
-От dist-sw01.devnet.lab(Eth1/2) к dist-sw02.devnet.lab(Eth1/2)
+От dist-rtr01.devnet.lab(Gi2) к core-rtr01.devnet.lab(Gi0/0/0/2)
 
-Для просмотра топологии откройте файл main.html
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Удаленные соединения между устройствами:
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+От edge-sw01.devnet.lab(Gi0/2) к core-rtr01.devnet.lab(Gi0/0/0/1)
+От edge-sw01.devnet.lab(Gi0/3) к core-rtr02.devnet.lab(Gi0/0/0/1)
+
+Для просмотра топологии с визуализацией изменений откройте файл diff_page.html
 ```
 
+И отображение файла diff.html:
 
+![sample_diff](/samples/sample_diff.png)
 
+Отображение удаленных и новых элементов интуитивно понятно. :)
