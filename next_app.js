@@ -3,6 +3,19 @@
      * define NeXt based application
      */
     // initialize a topology
+
+    var layerSortOrder = [
+        'undefined',
+        'outside',
+        'edge',
+        'core-router',
+        'distribution-router',
+        'distribution-switch',
+        'leaf',
+        'spine',
+        'access-switch'
+    ]
+
     var topo = new nx.graphic.Topology({
         // set the topology view's with and height
         width: 1200,
@@ -138,7 +151,7 @@
         currentLayout = 'horizontal';
         var layout = topo.getLayout('hierarchicalLayout');
         layout.direction('horizontal');
-        layout.sortOrder(['undefined', 'outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.sortOrder(layerSortOrder);
         layout.levelBy(function(node, model) {
             return model.get('role');
         });
@@ -152,7 +165,7 @@
         currentLayout = 'vertical';
         var layout = topo.getLayout('hierarchicalLayout');
         layout.direction('vertical');
-        layout.sortOrder(['undefined', 'outside', 'edge', 'core-router', 'distribution-router', 'distribution-switch', 'leaf', 'spine', 'access-switch']);
+        layout.sortOrder(layerSortOrder);
         layout.levelBy(function(node, model) {
           return model.get('role');
         });
