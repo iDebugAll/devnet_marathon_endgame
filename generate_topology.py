@@ -39,6 +39,23 @@ OUTPUT_TOPOLOGY_FILENAME = 'topology.js'
 CACHED_TOPOLOGY_FILENAME = 'cached_topology.json'
 TOPOLOGY_FILE_HEAD = "\n\nvar topologyData = "
 
+# Используется для определения порядка сортировки
+# уровней элементов в топологии для NeXt UI.
+# Порядок совпадает с очередностью перечисления
+# сверху вниз.
+NX_LAYER_SORT_ORDER = (
+    'undefined',
+    'outside',
+    'edge',
+    'core-router',
+    'distribution-router',
+    'distribution-switch',
+    'leaf',
+    'spine',
+    'access-switch'
+)
+
+
 nr = InitNornir(config_file=NORNIR_CONFIG_FILE)
 
 icon_capability_map = {
@@ -113,6 +130,13 @@ def get_icon_type(device_cap_name, device_model=''):
             if model_shortname in device_model:
                 return icon_type
     return 'unknown'
+
+
+def get_node_layer_sort_preference(device_role):
+    for i, role in enumerate(NX_LAYER_SORT_ORDER):
+        if device_role == role:
+            return i
+    return 1
 
 
 def get_host_data(task):
