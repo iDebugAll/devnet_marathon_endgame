@@ -78,7 +78,11 @@
                 tag: 'div',
                 content: [{
                     tag: 'h5',
-                    content: '{#node.model.name}',
+                    content: [{
+                        tag: 'a',
+                        content: '{#node.model.name}',
+                        props: {"href": "{#node.model.dcimDeviceLink}"}
+                    }],
                     props: {
                         "style": "border-bottom: dotted 1px; font-size:90%; word-wrap:normal; color:#003688"
                     }
