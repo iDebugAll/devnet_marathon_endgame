@@ -60,6 +60,8 @@ $ python3.7 generate_topology.py
 На выходе генерируется:
   - Файл topology.js c JS объектом топологии для NeXt UI;
   - Файл cached_topology.json с JSON-представлением проанализированной топологии.
+  - Файл diff_topology.js с визуализацией изменений в текущей топологии
+    относительно последнего известного cached_topology.json.
   - Консольный вывод с результатами проверки на наличие изменений в топологии.
 
 Файл topology.js перезаписывается при каждом запуске. Версия в репозитории для ознакомления содержит результат обработки топологии из [Cisco Modeling Labs](https://devnetsandbox.cisco.com/RM/Diagram/Index/685f774a-a5d6-4df5-a324-3774217d0e6b?diagramType=Topology) в Cisco DevNet Sandbox.
