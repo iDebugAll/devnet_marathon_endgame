@@ -160,8 +160,10 @@ def normalize_result(nornir_job_result):
             # Если таск для специфического хоста завершился ошибкой,
             # в результат для него записываются пустые списки.
             # Ключом будет являться имя его host-объекта в инвентори.
-            global_lldp_data[device] = []
-            global_facts[device] = []
+            global_lldp_data[device] = {}
+            global_facts[device] = {
+                'nr_role': nr.inventory.hosts[device].get('role', 'undefined')
+            }
             continue
         # Для различения устройств в топологии при ее анализе
         # за идентификатор принимается FQDN устройства, как и в LLDP TLV.
@@ -174,6 +176,7 @@ def normalize_result(nornir_job_result):
             # используется имя host-объекта в инвентори.
             device_fqdn = device
         global_facts[device_fqdn] = output[1].result['facts']
+        global_facts[device_fqdn]['nr_role'] = nr.inventory.hosts[device].get('role', 'undefined')
         global_lldp_data[device_fqdn] = output[1].result['lldp_neighbors_detail']
     return global_lldp_data, global_facts
 
@@ -245,15 +248,20 @@ def generate_topology_json(*args):
     for host in discovered_hosts:
         device_model = 'n/a'
         device_serial = 'n/a'
+        device_role = 'undefined'
         if facts.get(host):
             device_model = facts[host].get('model', 'n/a')
             device_serial = facts[host].get('serial_number', 'n/a')
+            device_role = facts[host].get('nr_role', 'undefined')
         host_id_map[host] = host_id
         topology_dict['nodes'].append({
             'id': host_id,
             'name': host,
             'model': device_model,
             'serial_number': device_serial,
+            'layerSortPreference': get_node_layer_sort_preference(
+                device_role
+            ),
             'icon': get_icon_type(
                 lldp_capabilities_dict.get(host, ''),
                 device_model
