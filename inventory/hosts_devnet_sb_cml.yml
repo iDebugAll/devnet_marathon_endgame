@@ -13,18 +13,40 @@ edge-sw01:
     site: devnet_sandbox
     groups:
         - devnet-cml-lab
+    data:
+        role: edge-switch
+
+core-rtr02:
+    hostname: 10.10.20.173
+    platform: iosxr
+    groups:
+        - devnet-cml-lab
+    data:
+        role: core-router
+
+core-rtr02:
+    hostname: 10.10.20.174
+    platform: iosxr
+    groups:
+        - devnet-cml-lab
+    data:
+        role: core-router
 
 dist-rtr01:
     hostname: 10.10.20.175
     platform: ios
     groups:
         - devnet-cml-lab
+    data:
+        role: distribution-router
 
 dist-rtr02:
     hostname: 10.10.20.176
     platform: ios
     groups:
         - devnet-cml-lab
+    data:
+        role: distribution-router
 
 dist-sw01:
     hostname: 10.10.20.177
@@ -32,6 +54,8 @@ dist-sw01:
     transport: ssh
     groups:
         - devnet-cml-lab
+    data:
+        role: distribution-switch
 
 dist-sw02:
     hostname: 10.10.20.178
@@ -39,4 +63,6 @@ dist-sw02:
     transport: ssh
     groups:
         - devnet-cml-lab
+    data:
+        role: distribution-switch
 
