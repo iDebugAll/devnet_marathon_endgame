@@ -16,7 +16,7 @@ edge-sw01:
     data:
         role: edge-switch
 
-core-rtr02:
+core-rtr01:
     hostname: 10.10.20.173
     platform: iosxr
     groups:
