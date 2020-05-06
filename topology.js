@@ -126,56 +126,64 @@ var topologyData = {
             "id": 0,
             "model": "CSR1000V",
             "name": "dist-rtr02.devnet.lab",
-            "serial_number": "9YZKNQKQ566"
+            "serial_number": "9YZKNQKQ566",
+            "layerSortPreference": 7
         },
         {
             "icon": "switch",
             "id": 1,
             "model": "Nexus9000 9000v Chassis",
             "name": "dist-sw01.devnet.lab",
-            "serial_number": "9MZLNM0ZC9Z"
+            "serial_number": "9MZLNM0ZC9Z",
+            "layerSortPreference": 8
         },
         {
             "icon": "switch",
             "id": 2,
             "model": "Nexus9000 9000v Chassis",
             "name": "dist-sw02.devnet.lab",
-            "serial_number": "93LCGCRUJA5"
+            "serial_number": "93LCGCRUJA5",
+            "layerSortPreference": 8
         },
         {
             "icon": "router",
             "id": 3,
             "model": "n/a",
             "name": "core-rtr02.devnet.lab",
-            "serial_number": "n/a"
+            "serial_number": "n/a",
+            "layerSortPreference": 5
         },
         {
             "icon": "router",
             "id": 4,
             "model": "CSR1000V",
             "name": "dist-rtr01.devnet.lab",
-            "serial_number": "9S78ZRF2V2B"
+            "serial_number": "9S78ZRF2V2B",
+            "layerSortPreference": 7
         },
         {
             "icon": "router",
             "id": 5,
             "model": "n/a",
             "name": "core-rtr01.devnet.lab",
-            "serial_number": "n/a"
+            "serial_number": "n/a",
+            "layerSortPreference": 5
         },
         {
             "icon": "unknown",
             "id": 6,
             "model": "CSR1000V",
             "name": "internet-rtr01.virl.info",
-            "serial_number": "9LGWPM8GTV6"
+            "serial_number": "9LGWPM8GTV6",
+            "layerSortPreference": 1
         },
         {
             "icon": "switch",
             "id": 7,
             "model": "IOSv",
             "name": "edge-sw01.devnet.lab",
-            "serial_number": "927A4RELIGI"
+            "serial_number": "927A4RELIGI",
+            "layerSortPreference": 3
         }
     ]
 };
