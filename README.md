@@ -22,6 +22,12 @@ $ pip3 install -i requirements.txt
 Файл хостов, используемый по умолчанию, настроен на работу по SSH с сетевой топологией из [Cisco Modeling Labs](https://devnetsandbox.cisco.com/RM/Diagram/Index/685f774a-a5d6-4df5-a324-3774217d0e6b?diagramType=Topology) в Cisco Devnet Sandbox.
 Для подключения к Cisco DevNet Sandbox требуется бесплатная регистрация, резервирование и VPN-доступ.
 
+В случае, если что-то перестало работать после добавления функционала выравнивания, можно откатиться на более стабильный релиз:
+```sh
+$ cd ~/devnet_marathon_endgame/devnet_marathon_endgame
+$ git checkout stable
+```
+
 ### Использование:
 Для синхронизации топологии необходимо запустить скрипт generate_topology.py.
 После того, как скрипт завершит работу, необходимо открыть файл main.html.
