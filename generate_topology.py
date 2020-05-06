@@ -46,8 +46,10 @@ TOPOLOGY_FILE_HEAD = "\n\nvar topologyData = "
 NX_LAYER_SORT_ORDER = (
     'undefined',
     'outside',
-    'edge',
+    'edge-switch',
+    'edge-router',
     'core-router',
+    'core-switch',
     'distribution-router',
     'distribution-switch',
     'leaf',
