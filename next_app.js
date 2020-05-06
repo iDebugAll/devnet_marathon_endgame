@@ -25,6 +25,10 @@
             label: 'model.name',
             iconType: 'model.iconType'
         },
+        // set custom tooltip content class
+        tooltipManagerConfig: {
+            nodeTooltipContentClass: 'CustomNodeTooltip'
+        },
         // link config
         linkConfig: {
             // multiple link type is curve, could change to 'parallel' to use parallel link
@@ -60,6 +64,69 @@
                 topo.data(topologyData);
                 //attach topology to document
                 topo.attach(this);
+            }
+        }
+    });
+
+    nx.define('CustomNodeTooltip', nx.ui.Component, {
+        properties: {
+            node: {},
+            topology: {}
+        },
+        view: {
+            content: [{
+                tag: 'div',
+                content: [{
+                    tag: 'h5',
+                    content: '{#node.model.name}',
+                    props: {
+                        "style": "border-bottom: dotted 1px; font-size:90%; word-wrap:normal; color:#003688"
+                    }
+                }, {
+                    tag: 'p',
+                    content: [
+                        {
+                        tag: 'label',
+                        content: 'Model: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#node.model.model}',
+                    }
+                    ],
+                    props: {
+                        "style": "font-size:80%;"
+                    }
+                }, {
+                    tag: 'p',
+                    content: [{
+                        tag: 'label',
+                        content: 'S/N: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#node.model.serial_number}',
+                    }],
+                    props: {
+                        "style": "font-size:80%; padding:0"
+                    }
+                },
+            ],
+            props: {
+                "style": "width: 150px;"
+            }
+        }]
+        }
+    });
+
+    nx.define('Tooltip.Node', nx.ui.Component, {
+        view: function(view){
+            view.content.push({
+            });
+            return view;
+        },
+        methods: {
+            attach: function(args) {
+                this.inherited(args);
+                this.model();
             }
         }
     });
