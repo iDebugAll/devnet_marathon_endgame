@@ -133,7 +133,7 @@ def get_icon_type(device_cap_name, device_model=''):
 
 
 def get_node_layer_sort_preference(device_role):
-    for i, role in enumerate(NX_LAYER_SORT_ORDER):
+    for i, role in enumerate(NX_LAYER_SORT_ORDER, start=1):
         if device_role == role:
             return i
     return 1
