@@ -255,6 +255,7 @@ def generate_topology_json(*args):
         device_model = 'n/a'
         device_serial = 'n/a'
         device_role = 'undefined'
+        device_ip = 'n/a'
         if facts.get(host):
             device_model = facts[host].get('model', 'n/a')
             device_serial = facts[host].get('serial_number', 'n/a')
