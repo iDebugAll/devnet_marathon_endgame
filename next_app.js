@@ -6,7 +6,7 @@
     var topo = new nx.graphic.Topology({
         // set the topology view's with and height
         width: 1200,
-        height: 800,
+        height: 700,
         dataProcessor: 'force',
         identityKey: 'id',
         // node config
@@ -87,6 +87,20 @@
                         "style": "border-bottom: dotted 1px; font-size:90%; word-wrap:normal; color:#003688"
                     }
                 }, {
+                    tag: 'p',
+                    content: [
+                        {
+                        tag: 'label',
+                        content: 'IP: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#node.model.primaryIP}',
+                    }
+                    ],
+                    props: {
+                        "style": "font-size:80%;"
+                    }
+                },{
                     tag: 'p',
                     content: [
                         {
