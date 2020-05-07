@@ -166,7 +166,8 @@ def normalize_result(nornir_job_result):
             # Ключом будет являться имя его host-объекта в инвентори.
             global_lldp_data[device] = {}
             global_facts[device] = {
-                'nr_role': nr.inventory.hosts[device].get('role', 'undefined')
+                'nr_role': nr.inventory.hosts[device].get('role', 'undefined'),
+                'nr_ip': nr.inventory.hosts[device].get('hostname', 'n/a'),
             }
             continue
         # Для различения устройств в топологии при ее анализе
@@ -181,6 +182,7 @@ def normalize_result(nornir_job_result):
             device_fqdn = device
         global_facts[device_fqdn] = output[1].result['facts']
         global_facts[device_fqdn]['nr_role'] = nr.inventory.hosts[device].get('role', 'undefined')
+        global_facts[device_fqdn]['nr_ip'] = nr.inventory.hosts[device].get('hostname', 'n/a')
         global_lldp_data[device_fqdn] = output[1].result['lldp_neighbors_detail']
     return global_lldp_data, global_facts
 
@@ -257,10 +259,12 @@ def generate_topology_json(*args):
             device_model = facts[host].get('model', 'n/a')
             device_serial = facts[host].get('serial_number', 'n/a')
             device_role = facts[host].get('nr_role', 'undefined')
+            device_ip = facts[host].get('nr_ip', 'n/a')
         host_id_map[host] = host_id
         topology_dict['nodes'].append({
             'id': host_id,
             'name': host,
+            'primaryIP': device_ip,
             'model': device_model,
             'serial_number': device_serial,
             'layerSortPreference': get_node_layer_sort_preference(
