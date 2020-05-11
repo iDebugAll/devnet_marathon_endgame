@@ -1,17 +1,21 @@
 (function (nx) {
     /**
-     * define NeXt based application
+     * Приложение на NeXt UI
      */
-    // initialize a topology
+    // Инициализация топологии
     var topo = new nx.graphic.Topology({
-        // set the topology view's with and height
+        // Ширина и высота view приложения
         width: 1200,
         height: 700,
+        // Процессор данных, отвечает за расстановку нод.
+        // 'force' стремится расставить ноды на равном 
+        // удалении друг от друга. 'quick' расставляет их
+        // в произвольных местах
         dataProcessor: 'force',
+        // уникальный идентификатор нод и линков
         identityKey: 'id',
-        // node config
+        // Конфигурация нод
         nodeConfig: {
-            // label display name from of node's model, could change to 'model.id' to show id
             label: 'model.name',
             iconType:'model.icon',
             color: function(model) {
@@ -20,18 +24,19 @@
                 }
             },
         },
-        // node set config
+        // Конфигурация  Node Set (на будущее)
         nodeSetConfig: {
             label: 'model.name',
             iconType: 'model.iconType'
         },
-        // set custom tooltip content class
+        // Настройки tooltip content (меню при нажатии на ноду)
         tooltipManagerConfig: {
             nodeTooltipContentClass: 'CustomNodeTooltip'
         },
-        // link config
+        // Конфигурация линков
         linkConfig: {
-            // multiple link type is curve, could change to 'parallel' to use parallel link
+            // Отображение множественных линков дугами,
+            // можно поменять на 'parallel'
             linkType: 'curve',
             sourcelabel: 'model.srcIfName',
             targetlabel: 'model.tgtIfName',
@@ -49,7 +54,7 @@
                 }
             },
         },
-        // show node's icon, could change to false to show dot
+        // Отображать пиктограммы нод, при false отрисует точку
         showIcon: true,
         linkInstanceClass: 'MyExtendLink' 
     });
@@ -59,10 +64,9 @@
     var Shell = nx.define(nx.ui.Application, {
         methods: {
             start: function () {
-                //your application main entry
-                //set data to topology
+                // записать данные топологии из переменной
                 topo.data(topologyData);
-                //attach topology to document
+                // и прикрепить их к документу
                 topo.attach(this);
             }
         }
@@ -225,7 +229,6 @@
         layout.direction('horizontal');
         layout.levelBy(function(node, model) {
             return model.get('layerSortPreference');
-            console.log(model.get('layerSortPreference'));
         });
         topo.activateLayout('hierarchicalLayout');
     };
@@ -243,8 +246,8 @@
         topo.activateLayout('hierarchicalLayout');
     };
 
-    // create application instance
+    // создать инстанс приложения
     var shell = new Shell();
-    // invoke start method
+    // запустить приложение
     shell.start();
 })(nx);
