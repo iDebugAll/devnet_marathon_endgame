@@ -56,7 +56,7 @@
         },
         // Отображать пиктограммы нод, при false отрисует точку
         showIcon: true,
-        linkInstanceClass: 'MyExtendLink' 
+        linkInstanceClass: 'CustomLinkClass' 
     });
 
     topo.registerIcon("dead_node", "img/dead_node.png", 49, 49);
@@ -153,7 +153,7 @@
         }
     });
 
-    nx.define('MyExtendLink', nx.graphic.Topology.Link, {
+    nx.define('CustomLinkClass', nx.graphic.Topology.Link, {
         properties: {
             sourcelabel: null,
             targetlabel: null
