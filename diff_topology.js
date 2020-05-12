@@ -220,7 +220,7 @@ var topologyData = {
             "dcimDeviceLink": "http://localhost:32768/dcim/devices/?q=core-rtr01.devnet.lab",
         },
         {
-            "icon": "unknown",
+            "icon": "router",
             "id": 6,
             "is_dead": "no",
             "is_new": "no",
