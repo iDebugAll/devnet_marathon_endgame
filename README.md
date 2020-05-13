@@ -90,7 +90,7 @@ Similar output for links (not customized yet):<br/>
 
 generate_topology.py analyzes the topology on every run.
 It writes resulting topology detail to cached_topology.json along with other files.
-This chache file is imported evety time on the start to be able to compare the topology states.
+This chache file is imported every time on the start to be able to compare the topology states.
 Diff result with deleted and added nodes and links is printed out to the console.
 diff_topology.js would contain the merged topology with some extended attributes for visualization.
 diff_page.html contains the diff topology layout.
