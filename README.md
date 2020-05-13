@@ -85,7 +85,7 @@ Left mouse button click on a node triggers a custom menu display:<br/>
 Serial number and model are assigned based on GET_FACTS result if present.
 It is technically possible to add any desired info for devices we have access to.
 
-Similar output for links (not customized yet):
+Similar output for links (not customized yet):<br/>
 ![link_details](/samples/sample_link_details.png)
 
 generate_topology.py analyzes the topology on every run.
