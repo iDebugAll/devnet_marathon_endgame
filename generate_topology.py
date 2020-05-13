@@ -1,33 +1,30 @@
 #!/usr/local/bin/python3.7
 
 """
-Скрипт для автоматической генерации сетевых топологий на основании данных LLDP.
+An automated topology visualization solution based on LLDP data.
 
-Для сбора данных с сетевых устройств используется связка NAPALM+Nornir:
-  - NAPALM геттер GET_LLDP_NEIGHBORS_DETAILS (сбор LLDP-соседств);
-  - NAPALM геттер GET_FACTS (общие данные об устройстве для вывода в подсказке).
+NAPALM is used along with Nornir to retrieve the data from hosts:
+  - NAPALM GET_LLDP_NEIGHBORS_DETAILS getter returns LLDP neighbors details;
+  - NAPALM GET_FACTS getter returns general device info we can use for visualization.
 
-На вход принимается инициализированный инвентори Nornir с:
-  - IP-адресами устройств;
-  - Аутентификационными данными для этих устройств с правами на чтение.
-На выходе генерируется:
-  - Файл topology.js c JS объектом топологии для NeXt UI;
-  - Файл cached_topology.json с JSON-представлением проанализированной топологии.
-  - Файл diff_topology.js с визуализацией изменений в текущей топологии
-    относительно последнего известного cached_topology.json.
-  - Консольный вывод с результатами проверки на наличие изменений в топологии.
+The script accepts an initialized Nornir as an input. Mandatory items:
+  - IP-addresses of network devices;
+  - Valid credentials with read-only access to those devices.
 
-Попытка сбора данных по умолчанию осуществляется со всех устройст в инвентори.
-В случае ошибок в получении данных, отсутствия LLDP соседств, прав и т.п. на
-каком-либо из хостов, он включается в топологию с именем из инвентори без связей.
+The script output consists of:
+  - topology.js file with JS topology objects for NeXt UI;
+  - cached_topology.json file with JSON-representation of the analyzed topology.
+  - diff_topology.js file with visualized topology changes as
+    compared to last known cached_topology.json.
+  - Console output of the topology diff check result.
 
-Файл cached_topology.json загружается скриптом из локальной директории и пишется
-в нее при каждом запуске. Вывод обнаруженной разницы в топологиях выполняется на
-основе сравнения данных из этого файла и текущей проанализированной топологии.
-Если файл cached_topology.json отсутствует, считается, что это первый запуск, и
-никаких изменений нет.
+The script implements general error handling and data normalization.
+Data collection attempt runs on all the nodes in Nornir inventory.
+A standalone node with Nornir host object name is included to
+resulting topology in case of any errors.
 
-Для отображения сгенерированной топологии необходимо открыть файл main.html.
+Open main.html to view current topology.
+Open diff_page.html or use navigation buttons on main.html to view changes.
 """
 
 import os
@@ -41,10 +38,9 @@ OUTPUT_TOPOLOGY_FILENAME = 'topology.js'
 CACHED_TOPOLOGY_FILENAME = 'cached_topology.json'
 TOPOLOGY_FILE_HEAD = "\n\nvar topologyData = "
 
-# Используется для определения порядка сортировки
-# уровней элементов в топологии для NeXt UI.
-# Порядок совпадает с очередностью перечисления
-# сверху вниз.
+# Topology layers would be sorted
+# in the same descending order
+# as in the tuple below
 NX_LAYER_SORT_ORDER = (
     'undefined',
     'outside',
@@ -117,19 +113,18 @@ def if_shortname(ifname):
 
 def get_icon_type(device_cap_name, device_model=''):
     """
-    Функция для определения типа пиктограммы устройства.
-    Приоритет имеет маппинг LLDP capabilities.
-    Если по ним определить тип пиктограммы не удалось,
-    делается проверка по модели устройства.
-    При отсутствии результата возвращается тип по умолчанию 'unknown'.
+    Device icon selection function. Selection order:
+    - LLDP capabilities mapping.
+    - Device model mapping.
+    - Default 'unknown'.
     """
     if device_cap_name:
         icon_type = icon_capability_map.get(device_cap_name)
         if icon_type:
             return icon_type
     if device_model:
-        # Проверяется вхождение подстроки из ключей icon_model_map
-        # В строке модели устройства до первого совпадения
+        # Check substring presence in icon_model_map keys
+        # string until the first match
         for model_shortname, icon_type in icon_model_map.items():
             if model_shortname in device_model:
                 return icon_type
@@ -137,6 +132,14 @@ def get_icon_type(device_cap_name, device_model=''):
 
 
 def get_node_layer_sort_preference(device_role):
+    """Layer priority selection function
+    Layer sort preference is designed as numeric value.
+    This function identifies it by NX_LAYER_SORT_ORDER
+    object position by default. With numeric values, 
+    the logic may be improved without changes on NeXt app side.
+    0(null) results undefined layer position in NeXt UI.
+    Valid indexes start with 1.
+    """
     for i, role in enumerate(NX_LAYER_SORT_ORDER, start=1):
         if device_role == role:
             return i
@@ -144,7 +147,7 @@ def get_node_layer_sort_preference(device_role):
 
 
 def get_host_data(task):
-    """Nornir Task для сбора данных с целевых устройств."""
+    """Nornir Task for data collection on target hosts."""
     task.run(
         task=napalm_get,
         getters=['facts', 'lldp_neighbors_detail']
@@ -153,32 +156,31 @@ def get_host_data(task):
 
 def normalize_result(nornir_job_result):
     """
-    Парсер для результата работы get_host_data.
-    Возвращает словари с данными LLDP и FACTS с разбиением
-    по устройствам с ключами в виде хостнеймов.
+    get_host_data result parser.
+    Returns LLDP and FACTS data dicts
+    with hostname keys.
     """
     global_lldp_data = {}
     global_facts = {}
     for device, output in nornir_job_result.items():
         if output[0].failed:
-            # Если таск для специфического хоста завершился ошибкой,
-            # в результат для него записываются пустые списки.
-            # Ключом будет являться имя его host-объекта в инвентори.
+            # Write default data to dicts if the task is failed.
+            # Use host inventory object name as a key.
             global_lldp_data[device] = {}
             global_facts[device] = {
                 'nr_role': nr.inventory.hosts[device].get('role', 'undefined'),
                 'nr_ip': nr.inventory.hosts[device].get('hostname', 'n/a'),
             }
             continue
-        # Для различения устройств в топологии при ее анализе
-        # за идентификатор принимается FQDN устройства, как и в LLDP TLV.
+        # Use FQDN as unique ID for devices withing the script.
         device_fqdn = output[1].result['facts']['fqdn']
         if not device_fqdn:
-            # Если FQDN не задан, используется хостнейм.
+            # If FQDN is not set use hostname.
+            # LLDP TLV follows the same logic.
             device_fqdn = output[1].result['facts']['hostname']
         if not device_fqdn:
-            # Если и хостнейм не задан,
-            # используется имя host-объекта в инвентори.
+            # Use host inventory object name as a key if
+            # neither FQDN nor hostname are set
             device_fqdn = device
         global_facts[device_fqdn] = output[1].result['facts']
         global_facts[device_fqdn]['nr_role'] = nr.inventory.hosts[device].get('role', 'undefined')
@@ -189,10 +191,10 @@ def normalize_result(nornir_job_result):
 
 def extract_lldp_details(lldp_data_dict):
     """
-    Парсер данных из словаря LLDP-данных.
-    Возвращает сет из всех обнаруженных в топологии хостов,
-    словарь обнаруженных LLDP capabilities с ключами в виде
-    хостнеймов и список уникальных связностей между хостами.
+    LLDP data dict parser.
+    Returns set of all the discovered hosts,
+    LLDP capabilities dict with all LLDP-discovered host,
+    and all discovered interconections between hosts.
     """
     discovered_hosts = set()
     lldp_capabilities_dict = {}
@@ -209,23 +211,21 @@ def extract_lldp_details(lldp_data_dict):
                     continue
                 discovered_hosts.add(neighbor['remote_system_name'])
                 if neighbor['remote_system_enable_capab']:
-                    # В случае наличия нескольких enable capabilities
-                    # в расчет берется первая по списку
+                    # In case of multiple enable capabilities pick first in the list
                     lldp_capabilities_dict[neighbor['remote_system_name']] = (
                         neighbor['remote_system_enable_capab'][0]
                     )
                 else:
                     lldp_capabilities_dict[neighbor['remote_system_name']] = ''
-                # Связи между хостами первоначально сохраняются в формате:
-                # ((хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
-                # и добавляются в общий список.
+                # Store interconnections in a following format:
+                # ((source_hostname, source_port), (dest_hostname, dest_port))
                 local_end = (host, interface)
                 remote_end = (
                     neighbor['remote_system_name'],
                     if_fullname(neighbor['remote_port'])
                 )
-                # При добавлении проверяется, не является ли линк перестановкой
-                # источника и назначения или дублем.
+                # Check if the link is not a permutation of already added one
+                # (local_end, remote_end) equals (remote_end, local_end)
                 link_is_already_there = (
                     (local_end, remote_end) in global_interconnections
                     or (remote_end, local_end) in global_interconnections
@@ -241,11 +241,12 @@ def extract_lldp_details(lldp_data_dict):
 
 def generate_topology_json(*args):
     """
-    Генератор JSON-объекта топологии.
-    На вход принимает сет из всех обнаруженных в топологии хостов,
-    словарь обнаруженных LLDP capabilities с ключами в виде
-    хостнеймов, список уникальных связностей между хостами и словарь
-    с дополнительными данными об устройствах с ключами в виде хостнеймов.
+    JSON topology object genetator.
+    Takes as an input:
+    - discovered hosts set,
+    - LLDP capabilities dict with hostname keys,
+    - interconnections list,
+    - facts dict with hostname keys.
     """
     discovered_hosts, interconnections, lldp_capabilities_dict, facts = args
     host_id = 0
@@ -320,26 +321,27 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
 
 def get_topology_diff(cached, current):
     """
-    Функция поиска изменений в топологии.
-    На вход принимает два словаря с кэшированной и текущей
-    топологиями. На выходе возвращает список словарей с изменениями
-    по хостам и линкам, а также словарь с результатом слияния
-    сравниваемых топологий с расширенными атрибутами
-    для визуализации изменений.
+    Topology diff analyzer and generator.
+    Accepts two valid topology dicts as an input.
+    Returns:
+    - dict with added and deleted nodes,
+    - dict with added and deleted links,
+    - dict with merged input topologies with extended
+      attributes for topology changes visualization
     """
     diff_nodes = {'added': [], 'deleted': []}
     diff_links = {'added': [], 'deleted': []}
     diff_merged_topology = {'nodes': [], 'links': []}
-    # Линки парсятся из объектов топологии в формат:
-    # (исходник, (хостнейм_источника, порт источника), (хостнейм назначения, порт_назначения))
+    # Parse links from topology dicts into the following format:
+    # (topology_link_obj, (source_hostnme, source_port), (dest_hostname, dest_port))
     cached_links = [(x, ((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName']))) for x in cached['links']]
     links = [(x, ((x['srcDevice'], x['srcIfName']), (x['tgtDevice'], x['tgtIfName']))) for x in current['links']]
-    # Хосты парсятся из объектов топологии в формат:
-    # (исходные данные, (хостнейм,))
-    # В кортеж при дальнейшей разработке могут добавляться дополнительные параметры для сравнения.
+    # Parse nodes from topology dicts into the following format:
+    # (topology_node_obj, (hostname,))
+    # Some additional values might be added for comparison later on to the tuple above.
     cached_nodes = [(x, (x['name'],)) for x in cached['nodes']]
     nodes = [(x, (x['name'],)) for x in current['nodes']]
-    # Выполняется поиск добавленных и удаленных хостнеймов в топологии.
+    # Search for deleted and added hostnames.
     node_id = 0
     host_id_map = {}
     for raw_data, node in nodes:
@@ -369,12 +371,11 @@ def get_topology_diff(cached, current):
         raw_data['icon'] = 'dead_node'
         diff_merged_topology['nodes'].append(raw_data)
         node_id += 1
-    # Выполняется поиск новых и удаленных связей между устройствами.
-    # Смена интерфейса между парой устройств рассматривается
-    # как добавление одной связи и добавление другой.
-    # При проверке учитывается формат хранения и
-    # выполняется проверка на перестановки источника и назначения:
-    # ((h1, Gi1), (h2, Gi2)) и ((h2, Gi2), (h1, Gi1)) - одно и тоже.
+    # Search for deleted and added interconnections.
+    # Interface change on some side is consideres as
+    # one interconnection deletion and one interconnection insertion.
+    # Check for permutations as well:
+    # ((h1, Gi1), (h2, Gi2)) and ((h2, Gi2), (h1, Gi1)) are equal.
     link_id = 0
     for raw_data, link in links:
         src, dst = link
@@ -411,47 +412,47 @@ def get_topology_diff(cached, current):
 
 def print_diff(diff_result):
     """
-    Функция для форматированного вывода
-    результата get_topology_diff в консоль.
+    Formatted get_topology_diff result
+    console print function.
     """
     diff_nodes, diff_links, *ignore = diff_result
     if not (diff_nodes['added'] or diff_nodes['deleted'] or diff_links['added'] or diff_links['deleted']):
-        print('Изменений в топологии не обнаружено.')
+        print('No topology changes since last run.')
         return
-    print('Обнаружены изменения в топологии:')
+    print('Topology changes have been discovered:')
     if diff_nodes['added']:
         print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Новые сетевые устройства:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('^^^^^^^^^^^^^^^^^^^^')
+        print('New Network Devices:')
+        print('vvvvvvvvvvvvvvvvvvvv')
         for node in diff_nodes['added']:
-            print(f'Имя устройства: {node[0]}')
+            print(f'Hostname: {node[0]}')
     if diff_nodes['deleted']:
         print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Удаленные сетевые устройства:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('^^^^^^^^^^^^^^^^^^^^^^^^')
+        print('Deleted Network Devices:')
+        print('vvvvvvvvvvvvvvvvvvvvvvvv')
         for node in diff_nodes['deleted']:
-            print(f'Имя устройства: {node[0]}')
+            print(f'Hostname: {node[0]}')
     if diff_links['added']:
         print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Новые соединения между устройствами:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('^^^^^^^^^^^^^^^^^^^^^^')
+        print('New Interconnections:')
+        print('vvvvvvvvvvvvvvvvvvvvvv')
         for src, dst in diff_links['added']:
-            print(f'От {src[0]}({src[1]}) к {dst[0]}({dst[1]})')
+            print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     if diff_links['deleted']:
         print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Удаленные соединения между устройствами:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
+        print('Deleted Interconnections:')
+        print('vvvvvvvvvvvvvvvvvvvvvvvvv')
         for src, dst in diff_links['deleted']:
-            print(f'От {src[0]}({src[1]}) к {dst[0]}({dst[1]})')
+            print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     print('')
 
 
 def good_luck_have_fun():
-    """Функция, реализующая итоговую логику."""
+    """Main script logic"""
     get_host_data_result = nr.run(get_host_data)
     GLOBAL_LLDP_DATA, GLOBAL_FACTS = normalize_result(get_host_data_result)
     TOPOLOGY_DETAILS = extract_lldp_details(GLOBAL_LLDP_DATA)
@@ -460,15 +461,15 @@ def good_luck_have_fun():
     CACHED_TOPOLOGY = read_cached_topology()
     write_topology_file(TOPOLOGY_DICT)
     write_topology_cache(TOPOLOGY_DICT)
-    print(f'Для просмотра топологии откройте файл main.html')
+    print(f'Open main.html to view the topology')
     if CACHED_TOPOLOGY:
         DIFF_DATA = get_topology_diff(CACHED_TOPOLOGY, TOPOLOGY_DICT)
         print_diff(DIFF_DATA)
         write_topology_file(DIFF_DATA[2], dst='diff_topology.js')
-        print('Для просмотра топологии с визуализацией изменений откройте файл diff_page.html')
-        print("Либо откройте файл main.html и нажмите кнопку 'Показать визуализацию изменений'")
+        print('Open diff_page.html to view the changes.')
+        print("Optionally, open main.html and click 'Display diff' button")
     else:
-        # если кэша топологии нет, файл будет содержать текущую топологию
+        # write current topology to diff file if the cache is missing
         write_topology_file(TOPOLOGY_DICT, dst='diff_topology.js')
 
 
