@@ -66,7 +66,7 @@ Data collection attempt runs on all the nodes in Nornir inventory.
 A standalone node with Nornir host object name is included to resulting topology in case of any errors.
 
 The script is able to handle missing LLDP adjacencies properly (internet-rtr01.virl.info above).
-The script may handle missing access to sinle intermediate nodes properly (core-rtr01.devnet.lab and core-rtr02.devnet.lab above) in case if they run LLDP.
+The script may handle missing access to single intermediate nodes properly (core-rtr01.devnet.lab and core-rtr02.devnet.lab above) in case if they run LLDP.
 
 Node icons are being chosen automatically based on points below with descending priority:
   - Based on LLDP capabilities received and collected from neighbors.
@@ -90,7 +90,7 @@ Similar output for links (not customized yet):<br/>
 
 generate_topology.py analyzes the topology on every run.
 It writes resulting topology detail to cached_topology.json along with other files.
-This chache file is imported every time on the start to be able to compare the topology states.
+This cache file is imported every time on the start to be able to compare the topology states.
 Diff result with deleted and added nodes and links is printed out to the console.
 diff_topology.js would contain the merged topology with some extended attributes for visualization.
 diff_page.html contains the diff topology layout.
