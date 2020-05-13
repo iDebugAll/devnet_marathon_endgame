@@ -1,20 +1,23 @@
 (function (nx) {
     /**
-     * Приложение на NeXt UI
+     * NeXt UI base application
      */
-    // Инициализация топологии
+    // Initialize topology
     var topo = new nx.graphic.Topology({
-        // Ширина и высота view приложения
+        // View dimensions
         width: 1200,
         height: 700,
-        // Процессор данных, отвечает за расстановку нод.
-        // 'force' стремится расставить ноды на равном 
-        // удалении друг от друга. 'quick' расставляет их
-        // в произвольных местах
+        // Dataprocessor is responsible for spreading 
+        // the Nodes across the view.
+        // 'force' dataprocessor spreads the Nodes so
+        // they would be as distant from each other
+        // as possible. Follow social distancing and stay healthy.
+        // 'quick' dataprocessor picks random positions
+        // for the Nodes.
         dataProcessor: 'force',
-        // уникальный идентификатор нод и линков
+        // Node and Link identity key attribute name
         identityKey: 'id',
-        // Конфигурация нод
+        // Node settings
         nodeConfig: {
             label: 'model.name',
             iconType:'model.icon',
@@ -24,19 +27,20 @@
                 }
             },
         },
-        // Конфигурация  Node Set (на будущее)
+        // Node Set settings (for future use)
         nodeSetConfig: {
             label: 'model.name',
             iconType: 'model.iconType'
         },
-        // Настройки tooltip content (меню при нажатии на ноду)
+        // Tooltip content settings
         tooltipManagerConfig: {
             nodeTooltipContentClass: 'CustomNodeTooltip'
         },
-        // Конфигурация линков
+        // Link settings
         linkConfig: {
-            // Отображение множественных линков дугами,
-            // можно поменять на 'parallel'
+            // Display Links as curves in case of 
+            //multiple links between Node Pairs.
+            // Set to 'parallel' to use parallel links.
             linkType: 'curve',
             sourcelabel: 'model.srcIfName',
             targetlabel: 'model.tgtIfName',
@@ -54,7 +58,7 @@
                 }
             },
         },
-        // Отображать пиктограммы нод, при false отрисует точку
+        // Display Node icon. Displays a dot if set to 'false'.
         showIcon: true,
         linkInstanceClass: 'CustomLinkClass' 
     });
@@ -64,9 +68,9 @@
     var Shell = nx.define(nx.ui.Application, {
         methods: {
             start: function () {
-                // записать данные топологии из переменной
+                // Read topology data from variable
                 topo.data(topologyData);
-                // и прикрепить их к документу
+                // Attach it to the document
                 topo.attach(this);
             }
         }
@@ -246,8 +250,8 @@
         topo.activateLayout('hierarchicalLayout');
     };
 
-    // создать инстанс приложения
+    // Create an application instance
     var shell = new Shell();
-    // запустить приложение
+    // Run the application
     shell.start();
 })(nx);
