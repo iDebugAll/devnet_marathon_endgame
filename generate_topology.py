@@ -135,7 +135,7 @@ def get_node_layer_sort_preference(device_role):
     """Layer priority selection function
     Layer sort preference is designed as numeric value.
     This function identifies it by NX_LAYER_SORT_ORDER
-    object position by default. With numeric values, 
+    object position by default. With numeric values,
     the logic may be improved without changes on NeXt app side.
     0(null) results undefined layer position in NeXt UI.
     Valid indexes start with 1.
@@ -314,7 +314,11 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
     with open(filename, 'r') as file:
         try:
             cached_topology = json.loads(file.read())
-        except:
+        except ValueError as err:
+            print(f"Failed to read cache from {filename}: {err}")
+            return {}
+        except Exception as err:
+            print(f"Failed to read cache from {filename}: {err}")
             return {}
     return cached_topology
 
