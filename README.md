@@ -17,19 +17,21 @@ $ git clone https://github.com/iDebugAll/devnet_marathon_endgame.git
 $ cd devnet_marathon_endgame
 $ pip3 install -r requirements.txt
 ```
-Edit Nornir configuration files in order to access your target network infrastructure.
-SimpleInventory module is used by default.
-Specify required hosts and groups filenames in nornir_config.yml.
+Edit Nornir configuration files in order to access your target network infrastructure.<br/>
+SimpleInventory module is used by default.<br/>
+Specify required hosts and groups filenames in nornir_config.yml.<br/>
+Populate hosts file with network equipment IP-addresses and provide valid SSH-credentials.<br/>
+<br/>
 Default hosts file in this repo is configured for SSH access to [Cisco Modeling Labs](https://devnetsandbox.cisco.com/RM/Diagram/Index/685f774a-a5d6-4df5-a324-3774217d0e6b?diagramType=Topology) network topology in Cisco Devnet Sandbox.
-This Cisco DevNet Sandbox requires free registration, lab reservation (just a few clicks), and VPN-access (AnyConnect) to allow for connectivity.
+This Cisco DevNet Sandbox requires free registration, lab reservation (just a few clicks), and VPN-access (AnyConnect) to allow for connectivity. SSH and LLDP have to be configured on target devices before you begin.
 
 ### Usage:
 Run generate_topology.py script to syncronize the topology.
 Open main.html upon script completion.
 ```
 $ python3.7 generate_topology.py 
+Open main.html in a project root with your browser to view the topology
 No topology changes since last run.
-Open main.html to view the topology.
 ```
 
 ![sample_topology](/samples/sample_topology.png)
@@ -98,7 +100,7 @@ diff_page.html contains the diff topology layout.
 Sample console output:
 ```
 $ python3.7 generate_topology.py 
-Open main.html to view the topology.
+Open main.html in a project root with your browser to view the topology
 
 Topology changes have been discovered:
 
