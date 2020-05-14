@@ -414,6 +414,19 @@ def get_topology_diff(cached, current):
     return diff_nodes, diff_links, diff_merged_topology
 
 
+def topology_is_changed(diff_result):
+    diff_nodes, diff_links, *ignore = diff_result
+    changed = (
+        diff_nodes['added']
+        or diff_nodes['deleted']
+        or diff_links['added']
+        or diff_links['deleted']
+    )
+    if changed:
+        return True
+    return False
+
+
 def print_diff(diff_result):
     """
     Formatted get_topology_diff result
@@ -465,13 +478,14 @@ def good_luck_have_fun():
     CACHED_TOPOLOGY = read_cached_topology()
     write_topology_file(TOPOLOGY_DICT)
     write_topology_cache(TOPOLOGY_DICT)
-    print(f'Open main.html to view the topology')
+    print('Open main.html in a project root with your browser to view the topology')
     if CACHED_TOPOLOGY:
         DIFF_DATA = get_topology_diff(CACHED_TOPOLOGY, TOPOLOGY_DICT)
         print_diff(DIFF_DATA)
         write_topology_file(DIFF_DATA[2], dst='diff_topology.js')
-        print('Open diff_page.html to view the changes.')
-        print("Optionally, open main.html and click 'Display diff' button")
+        if topology_is_changed:
+            print('Open diff_page.html in a project root to view the changes.')
+            print("Optionally, open main.html and click 'Display diff' button")
     else:
         # write current topology to diff file if the cache is missing
         write_topology_file(TOPOLOGY_DICT, dst='diff_topology.js')
