@@ -25,7 +25,8 @@ This Cisco DevNet Sandbox requires free registration, lab reservation (just a fe
 
 ### Usage:
 Run generate_topology.py script to syncronize the topology.
-Open main.html upon script completion.
+It would attempt to connect to all hosts listed in Nornir inventory through SSH to get LLDP details with NAPALM.Visualised current and diff topologies are built as a result. Devices with missing LLDP entries, disabled LLDP process, or failed SSH connectivity would still be placed on topology layout as standalone nodes.
+Open main.html from repo root in your browser upon script completion.
 ```
 $ python3.7 generate_topology.py 
 Open main.html in a project root with your browser to view the topology
