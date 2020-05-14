@@ -2,6 +2,8 @@
 An automated topology visualization solution for online Cisco DevNet Marathon Finale.
 May 2020.
 
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/iDebugAll/devnet_marathon_endgame)
+
 ### Solution Technology Stack:
   - Python3
   - [Nornir](https://nornir.readthedocs.io/en/latest/)
