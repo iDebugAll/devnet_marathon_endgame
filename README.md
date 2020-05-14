@@ -11,8 +11,6 @@ May 2020.
 ### Installation:
 Install dependencies:
 ```sh
-$ mkdir ~/devnet_marathon_endgame
-$ cd ~/devnet_marathon_endgame
 $ git clone https://github.com/iDebugAll/devnet_marathon_endgame.git
 $ cd devnet_marathon_endgame
 $ pip3 install -r requirements.txt
