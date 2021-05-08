@@ -29,6 +29,8 @@ Open diff_page.html or use navigation buttons on main.html to view changes.
 
 import os
 import json
+from typing import Dict
+from typing import Tuple
 
 from nornir import InitNornir
 from nornir.plugins.tasks.networking import napalm_get
@@ -95,7 +97,7 @@ interface_full_name_map = {
 }
 
 
-def if_fullname(ifname):
+def if_fullname(ifname: str) -> str:
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname
@@ -104,14 +106,14 @@ def if_fullname(ifname):
     return ifname
 
 
-def if_shortname(ifname):
+def if_shortname(ifname: str) -> str:
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname.replace(v, k)
     return ifname
 
 
-def get_icon_type(device_cap_name, device_model=''):
+def get_icon_type(device_cap_name: str, device_model='') -> str:
     """
     Device icon selection function. Selection order:
     - LLDP capabilities mapping.
@@ -131,7 +133,7 @@ def get_icon_type(device_cap_name, device_model=''):
     return 'unknown'
 
 
-def get_node_layer_sort_preference(device_role):
+def get_node_layer_sort_preference(device_role: str) -> int:
     """Layer priority selection function
     Layer sort preference is designed as numeric value.
     This function identifies it by NX_LAYER_SORT_ORDER
@@ -189,7 +191,7 @@ def normalize_result(nornir_job_result):
     return global_lldp_data, global_facts
 
 
-def extract_lldp_details(lldp_data_dict):
+def extract_lldp_details(lldp_data_dict: Dict):
     """
     LLDP data dict parser.
     Returns set of all the discovered hosts,
@@ -239,7 +241,7 @@ def extract_lldp_details(lldp_data_dict):
     return [discovered_hosts, global_interconnections, lldp_capabilities_dict]
 
 
-def generate_topology_json(*args):
+def generate_topology_json(*args) -> Dict:
     """
     JSON topology object genetator.
     Takes as an input:
@@ -293,14 +295,14 @@ def generate_topology_json(*args):
     return topology_dict
 
 
-def write_topology_file(topology_json, header=TOPOLOGY_FILE_HEAD, dst=OUTPUT_TOPOLOGY_FILENAME):
+def write_topology_file(topology_json: Dict, header=TOPOLOGY_FILE_HEAD, dst=OUTPUT_TOPOLOGY_FILENAME):
     with open(dst, 'w') as topology_file:
         topology_file.write(header)
         topology_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
         topology_file.write(';')
 
 
-def write_topology_cache(topology_json, dst=CACHED_TOPOLOGY_FILENAME):
+def write_topology_cache(topology_json: Dict, dst=CACHED_TOPOLOGY_FILENAME):
     with open(dst, 'w') as cached_file:
         cached_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
 
@@ -323,7 +325,7 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
     return cached_topology
 
 
-def get_topology_diff(cached, current):
+def get_topology_diff(cached: Dict, current: Dict) -> Tuple:
     """
     Topology diff analyzer and generator.
     Accepts two valid topology dicts as an input.
