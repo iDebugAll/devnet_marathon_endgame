@@ -440,31 +440,39 @@ def print_diff(diff_result):
         return
     print('Topology changes have been discovered:')
     if diff_nodes['added']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^')
-        print('New Network Devices:')
-        print('vvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+New Network Devices:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for node in diff_nodes['added']:
             print(f'Hostname: {node[0]}')
     if diff_nodes['deleted']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Deleted Network Devices:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+Deleted Network Devices:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for node in diff_nodes['deleted']:
             print(f'Hostname: {node[0]}')
     if diff_links['added']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^')
-        print('New Interconnections:')
-        print('vvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+New Interconnections:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for src, dst in diff_links['added']:
             print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     if diff_links['deleted']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Deleted Interconnections:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+Deleted Interconnections:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for src, dst in diff_links['deleted']:
             print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     print('')
