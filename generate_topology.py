@@ -295,14 +295,14 @@ def generate_topology_json(*args) -> Dict:
     return topology_dict
 
 
-def write_topology_file(topology_json: Dict, header=TOPOLOGY_FILE_HEAD, dst=OUTPUT_TOPOLOGY_FILENAME):
+def write_topology_file(topology_json: Dict, header:str = TOPOLOGY_FILE_HEAD, dst:str = OUTPUT_TOPOLOGY_FILENAME):
     with open(dst, 'w') as topology_file:
         topology_file.write(header)
         topology_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
         topology_file.write(';')
 
 
-def write_topology_cache(topology_json: Dict, dst=CACHED_TOPOLOGY_FILENAME):
+def write_topology_cache(topology_json: Dict, dst:str = CACHED_TOPOLOGY_FILENAME):
     with open(dst, 'w') as cached_file:
         cached_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
 
@@ -325,7 +325,7 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
     return cached_topology
 
 
-def get_topology_diff(cached: Dict, current: Dict) -> Tuple:
+def get_topology_diff(cached: Dict, current: Dict) -> Tuple[Dict, Dict, Dict]:
     """
     Topology diff analyzer and generator.
     Accepts two valid topology dicts as an input.
@@ -416,7 +416,7 @@ def get_topology_diff(cached: Dict, current: Dict) -> Tuple:
     return diff_nodes, diff_links, diff_merged_topology
 
 
-def topology_is_changed(diff_result):
+def topology_is_changed(diff_result) -> bool:
     diff_nodes, diff_links, *ignore = diff_result
     changed = (
         diff_nodes['added']
