@@ -417,7 +417,7 @@ def get_topology_diff(cached: Dict, current: Dict) -> Tuple[Dict, Dict, Dict]:
 
 
 def topology_is_changed(diff_result) -> bool:
-    diff_nodes, diff_links, *ignore = diff_result
+    diff_nodes, diff_links, _ = diff_result
     changed = (
         diff_nodes['added']
         or diff_nodes['deleted']
@@ -434,7 +434,7 @@ def print_diff(diff_result):
     Formatted get_topology_diff result
     console print function.
     """
-    diff_nodes, diff_links, *ignore = diff_result
+    diff_nodes, diff_links, _ = diff_result
     if not (diff_nodes['added'] or diff_nodes['deleted'] or diff_links['added'] or diff_links['deleted']):
         print('No topology changes since last run.')
         return

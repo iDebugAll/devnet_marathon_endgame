@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 nornir = "==2.4.0"
+flake8 = "*"
 
 [dev-packages]
 
