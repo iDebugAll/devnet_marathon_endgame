@@ -31,8 +31,13 @@ import os
 import json
 from typing import Dict
 from typing import Tuple
+from typing import List
+from typing import Set
+from typing import Union
 
 from nornir import InitNornir
+from nornir.core import Task
+from nornir.core.task import AggregatedResult
 from nornir.plugins.tasks.networking import napalm_get
 
 NORNIR_CONFIG_FILE = "nornir_config.yml"
@@ -148,7 +153,7 @@ def get_node_layer_sort_preference(device_role: str) -> int:
     return 1
 
 
-def get_host_data(task):
+def get_host_data(task: Task):
     """Nornir Task for data collection on target hosts."""
     task.run(
         task=napalm_get,
@@ -156,7 +161,7 @@ def get_host_data(task):
     )
 
 
-def normalize_result(nornir_job_result):
+def normalize_result(nornir_job_result: AggregatedResult) -> Tuple[Dict, Dict]:
     """
     get_host_data result parser.
     Returns LLDP and FACTS data dicts
@@ -191,7 +196,7 @@ def normalize_result(nornir_job_result):
     return global_lldp_data, global_facts
 
 
-def extract_lldp_details(lldp_data_dict: Dict):
+def extract_lldp_details(lldp_data_dict: Dict) -> List[Union[Set, List, Dict]]:
     """
     LLDP data dict parser.
     Returns set of all the discovered hosts,
@@ -307,7 +312,7 @@ def write_topology_cache(topology_json: Dict, dst:str = CACHED_TOPOLOGY_FILENAME
         cached_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
 
 
-def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
+def read_cached_topology(filename:str=CACHED_TOPOLOGY_FILENAME) -> Dict:
     if not os.path.exists(filename):
         return {}
     if not os.path.isfile(filename):
