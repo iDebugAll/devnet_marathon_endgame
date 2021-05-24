@@ -4,6 +4,8 @@ May 2020.
 
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/iDebugAll/devnet_marathon_endgame)
 
+You can find a detailed solution explanation in my [blog post](https://idebugall.github.io/visualize-lldp/).
+
 ### Solution Technology Stack:
   - Python3
   - [Nornir](https://nornir.readthedocs.io/en/latest/)
