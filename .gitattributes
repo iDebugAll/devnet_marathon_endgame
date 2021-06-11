@@ -1,2 +1,2 @@
-next_sources/* linguist-vendored
+next_sources/**/* linguist-vendored
 *.css linguist-vendored
