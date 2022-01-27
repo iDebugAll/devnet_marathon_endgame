@@ -95,7 +95,18 @@ interface_full_name_map = {
 }
 
 
+def dequote(s):
+    """
+    If a string has single or double quotes around it, remove them.
+    Make sure the pair of quotes match.
+    If a matching pair of quotes is not found, return the string unchanged.
+    """
+    if len(s) >= 2 and (s[0] == s[-1]) and s.startswith(("'", '"')):
+        return s[1:-1]
+    return s
+
 def if_fullname(ifname):
+    ifname = dequote(ifname)
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname
@@ -105,6 +116,7 @@ def if_fullname(ifname):
 
 
 def if_shortname(ifname):
+    ifname = dequote(ifname)
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname.replace(v, k)
