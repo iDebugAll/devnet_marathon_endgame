@@ -34,7 +34,8 @@
         },
         // Tooltip content settings
         tooltipManagerConfig: {
-            nodeTooltipContentClass: 'CustomNodeTooltip'
+            nodeTooltipContentClass: 'CustomNodeTooltip',
+            linkTooltipContentClass: 'CustomLinkTooltip'
         },
         // Link settings
         linkConfig: {
@@ -156,6 +157,80 @@
             }
         }
     });
+
+    nx.define('CustomLinkTooltip', nx.ui.Component, {
+        properties: {
+            link: {},
+            topology: {}
+        },
+        view: {
+            content: [{
+                tag: 'div',
+                content: [{
+                    tag: 'p',
+                    content: [
+                        {
+                        tag: 'label',
+                        content: 'Link ID: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#link.model.id}',
+                    }
+                    ],
+                    props: {
+                        "style": "font-size:80%;"
+                    }
+                }, {
+                    tag: 'p',
+                    content: [
+                        {
+                        tag: 'label',
+                        content: 'Source Node ID: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#link.model.source.id}',
+                    }
+                    ],
+                    props: {
+                        "style": "font-size:80%;"
+                    }
+                }, {
+                    tag: 'p',
+                    content: [
+                        {
+                        tag: 'label',
+                        content: 'Target Node ID: ',
+                    }, {
+                        tag: 'label',
+                        content: '{#link.model.target.id}',
+                    }
+                    ],
+                    props: {
+                        "style": "font-size:80%;"
+                    }
+                }
+            ],
+            props: {
+                "style": "width: 150px;"
+            }
+        }]
+        }
+    });
+
+    nx.define('Tooltip.Link', nx.ui.Component, {
+        view: function(view){
+            view.content.push({
+            });
+            return view;
+        },
+        methods: {
+            attach: function(args) {
+                this.inherited(args);
+                this.model();
+            }
+        }
+    });
+
 
     nx.define('CustomLinkClass', nx.graphic.Topology.Link, {
         properties: {
