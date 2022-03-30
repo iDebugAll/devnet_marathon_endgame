@@ -29,8 +29,15 @@ Open diff_page.html or use navigation buttons on main.html to view changes.
 
 import os
 import json
+from typing import Dict
+from typing import Tuple
+from typing import List
+from typing import Set
+from typing import Union
 
 from nornir import InitNornir
+from nornir.core import Task
+from nornir.core.task import AggregatedResult
 from nornir.plugins.tasks.networking import napalm_get
 
 NORNIR_CONFIG_FILE = "nornir_config.yml"
@@ -95,7 +102,7 @@ interface_full_name_map = {
 }
 
 
-def if_fullname(ifname):
+def if_fullname(ifname: str) -> str:
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname
@@ -104,14 +111,14 @@ def if_fullname(ifname):
     return ifname
 
 
-def if_shortname(ifname):
+def if_shortname(ifname: str) -> str:
     for k, v in interface_full_name_map.items():
         if ifname.startswith(v):
             return ifname.replace(v, k)
     return ifname
 
 
-def get_icon_type(device_cap_name, device_model=''):
+def get_icon_type(device_cap_name: str, device_model='') -> str:
     """
     Device icon selection function. Selection order:
     - LLDP capabilities mapping.
@@ -131,7 +138,7 @@ def get_icon_type(device_cap_name, device_model=''):
     return 'unknown'
 
 
-def get_node_layer_sort_preference(device_role):
+def get_node_layer_sort_preference(device_role: str) -> int:
     """Layer priority selection function
     Layer sort preference is designed as numeric value.
     This function identifies it by NX_LAYER_SORT_ORDER
@@ -146,7 +153,7 @@ def get_node_layer_sort_preference(device_role):
     return 1
 
 
-def get_host_data(task):
+def get_host_data(task: Task):
     """Nornir Task for data collection on target hosts."""
     task.run(
         task=napalm_get,
@@ -154,7 +161,7 @@ def get_host_data(task):
     )
 
 
-def normalize_result(nornir_job_result):
+def normalize_result(nornir_job_result: AggregatedResult) -> Tuple[Dict, Dict]:
     """
     get_host_data result parser.
     Returns LLDP and FACTS data dicts
@@ -189,7 +196,7 @@ def normalize_result(nornir_job_result):
     return global_lldp_data, global_facts
 
 
-def extract_lldp_details(lldp_data_dict):
+def extract_lldp_details(lldp_data_dict: Dict) -> List[Union[Set, List, Dict]]:
     """
     LLDP data dict parser.
     Returns set of all the discovered hosts,
@@ -239,7 +246,7 @@ def extract_lldp_details(lldp_data_dict):
     return [discovered_hosts, global_interconnections, lldp_capabilities_dict]
 
 
-def generate_topology_json(*args):
+def generate_topology_json(*args) -> Dict:
     """
     JSON topology object genetator.
     Takes as an input:
@@ -293,19 +300,19 @@ def generate_topology_json(*args):
     return topology_dict
 
 
-def write_topology_file(topology_json, header=TOPOLOGY_FILE_HEAD, dst=OUTPUT_TOPOLOGY_FILENAME):
+def write_topology_file(topology_json: Dict, header:str = TOPOLOGY_FILE_HEAD, dst:str = OUTPUT_TOPOLOGY_FILENAME):
     with open(dst, 'w') as topology_file:
         topology_file.write(header)
         topology_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
         topology_file.write(';')
 
 
-def write_topology_cache(topology_json, dst=CACHED_TOPOLOGY_FILENAME):
+def write_topology_cache(topology_json: Dict, dst:str = CACHED_TOPOLOGY_FILENAME):
     with open(dst, 'w') as cached_file:
         cached_file.write(json.dumps(topology_json, indent=4, sort_keys=True))
 
 
-def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
+def read_cached_topology(filename:str=CACHED_TOPOLOGY_FILENAME) -> Dict:
     if not os.path.exists(filename):
         return {}
     if not os.path.isfile(filename):
@@ -323,7 +330,7 @@ def read_cached_topology(filename=CACHED_TOPOLOGY_FILENAME):
     return cached_topology
 
 
-def get_topology_diff(cached, current):
+def get_topology_diff(cached: Dict, current: Dict) -> Tuple[Dict, Dict, Dict]:
     """
     Topology diff analyzer and generator.
     Accepts two valid topology dicts as an input.
@@ -414,8 +421,8 @@ def get_topology_diff(cached, current):
     return diff_nodes, diff_links, diff_merged_topology
 
 
-def topology_is_changed(diff_result):
-    diff_nodes, diff_links, *ignore = diff_result
+def topology_is_changed(diff_result) -> bool:
+    diff_nodes, diff_links, _ = diff_result
     changed = (
         diff_nodes['added']
         or diff_nodes['deleted']
@@ -432,37 +439,45 @@ def print_diff(diff_result):
     Formatted get_topology_diff result
     console print function.
     """
-    diff_nodes, diff_links, *ignore = diff_result
+    diff_nodes, diff_links, _ = diff_result
     if not (diff_nodes['added'] or diff_nodes['deleted'] or diff_links['added'] or diff_links['deleted']):
         print('No topology changes since last run.')
         return
     print('Topology changes have been discovered:')
     if diff_nodes['added']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^')
-        print('New Network Devices:')
-        print('vvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+New Network Devices:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for node in diff_nodes['added']:
             print(f'Hostname: {node[0]}')
     if diff_nodes['deleted']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Deleted Network Devices:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+Deleted Network Devices:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for node in diff_nodes['deleted']:
             print(f'Hostname: {node[0]}')
     if diff_links['added']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^')
-        print('New Interconnections:')
-        print('vvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+New Interconnections:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for src, dst in diff_links['added']:
             print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     if diff_links['deleted']:
-        print('')
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('Deleted Interconnections:')
-        print('vvvvvvvvvvvvvvvvvvvvvvvvv')
+        print('''
+        
+^^^^^^^^^^^^^^^^^^^^
+Deleted Interconnections:
+vvvvvvvvvvvvvvvvvvvv
+        ''')
         for src, dst in diff_links['deleted']:
             print(f'From {src[0]}({src[1]}) To {dst[0]}({dst[1]})')
     print('')
